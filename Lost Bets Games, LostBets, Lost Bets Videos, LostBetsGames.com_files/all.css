@@ -1251,7 +1251,7 @@ https://github.com/videojs/video.js/blob/master/src/css/video-js.less */
 	overflow: hidden;
 }
 
-.button-text-animation__container div {
+.button-texts__container {
 	width: fit-content;
 	display: flex !important;
 	flex-direction: column;
@@ -1259,6 +1259,9 @@ https://github.com/videojs/video.js/blob/master/src/css/video-js.less */
 	top: 0;
 	left: 0;
 	margin: 0 !important;
+}
+
+.button-texts__container--animated {
 	transition: all 0.2s ease-in-out;
 }
 
