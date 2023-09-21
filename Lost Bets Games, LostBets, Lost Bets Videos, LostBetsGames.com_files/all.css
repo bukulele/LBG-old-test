@@ -1273,3 +1273,16 @@ https://github.com/videojs/video.js/blob/master/src/css/video-js.less */
 .content-animated * {
 	pointer-events: none;
 }
+
+.discount-label {
+	position: absolute;
+	top: -10px;
+	right: 0;
+	background-color: rgb(40, 167, 69);
+	color: #FFFFFF;
+	border-radius: .2rem;
+	padding: .25rem .5rem;
+	font-size: 11px;
+	font-weight: bold;
+	margin: 0!important;
+}
