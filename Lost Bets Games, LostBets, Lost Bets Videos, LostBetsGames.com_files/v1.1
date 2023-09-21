@@ -1,0 +1,787 @@
+jQuery = $;
+
+d = function(obj, title){
+  var prefix = title?title+'$':'$';
+  try{console.debug(prefix, obj);}catch(e){}
+};
+
+
+function createCookie(name, value, days) {
+    var expires;
+  
+    if (days) {
+        var date = new Date();
+        date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+        expires = "; expires=" + date.toGMTString();
+    } else {
+        expires = "";
+    }
+    document.cookie = encodeURIComponent(name) + "=" + encodeURIComponent(value) + expires + "; path=/";
+  }
+  
+  function readCookie(name) {
+    var nameEQ = encodeURIComponent(name) + "=";
+    var ca = document.cookie.split(';');
+    for (var i = 0; i < ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0) === ' ')
+            c = c.substring(1, c.length);
+        if (c.indexOf(nameEQ) === 0)
+            return decodeURIComponent(c.substring(nameEQ.length, c.length));
+    }
+    return null;
+  }
+  
+  function eraseCookie(name) {
+    createCookie(name, "", -1);
+  }(function ($) {
+    var m = {
+            '\b': '\\b',
+            '\t': '\\t',
+            '\n': '\\n',
+            '\f': '\\f',
+            '\r': '\\r',
+            '"' : '\\"',
+            '\\': '\\\\'
+        },
+        s = {
+            'array': function (x) {
+                var a = ['['], b, f, i, l = x.length, v;
+                for (i = 0; i < l; i += 1) {
+                    v = x[i];
+                    f = s[typeof v];
+                    if (f) {
+                        v = f(v);
+                        if (typeof v == 'string') {
+                            if (b) {
+                                a[a.length] = ',';
+                            }
+                            a[a.length] = v;
+                            b = true;
+                        }
+                    }
+                }
+                a[a.length] = ']';
+                return a.join('');
+            },
+            'boolean': function (x) {
+                return String(x);
+            },
+            'null': function (x) {
+                return "null";
+            },
+            'number': function (x) {
+                return isFinite(x) ? String(x) : 'null';
+            },
+            'object': function (x) {
+                if (x) {
+                    if (x instanceof Array) {
+                        return s.array(x);
+                    }
+                    var a = ['{'], b, f, i, v;
+                    for (i in x) {
+                        v = x[i];
+                        f = s[typeof v];
+                        if (f) {
+                            v = f(v);
+                            if (typeof v == 'string') {
+                                if (b) {
+                                    a[a.length] = ',';
+                                }
+                                a.push(s.string(i), ':', v);
+                                b = true;
+                            }
+                        }
+                    }
+                    a[a.length] = '}';
+                    return a.join('');
+                }
+                return 'null';
+            },
+            'string': function (x) {
+                if (/["\\\x00-\x1f]/.test(x)) {
+                    x = x.replace(/([\x00-\x1f\\"])/g, function(a, b) {
+                        var c = m[b];
+                        if (c) {
+                            return c;
+                        }
+                        c = b.charCodeAt();
+                        return '\\u00' +
+                            Math.floor(c / 16).toString(16) +
+                            (c % 16).toString(16);
+                    });
+                }
+                return '"' + x + '"';
+            }
+        };
+
+	$.toJSON = function(v) {
+		var f = isNaN(v) ? s[typeof v] : s['number'];
+		if (f) return f(v);
+	};
+	
+	$.parseJSON = function(v, safe) {
+		if (safe === undefined) safe = $.parseJSON.safe;
+		if (safe && !/^("(\\.|[^"\\\n\r])*?"|[,:{}\[\]0-9.\-+Eaeflnr-u \n\r\t])+?$/.test(v))
+			return undefined;
+		return eval('('+v+')');
+	};
+	
+	$.parseJSON.safe = false;
+
+})(jQuery);
+
+
+// Simple JavaScript Templating
+// John Resig - http://ejohn.org/ - MIT Licensed
+(function(){
+  var cache = {};
+  
+  this.tmpl = function tmpl(str, data){
+    // Figure out if we're getting a template, or if we need to
+    // load the template - and be sure to cache the result.
+    var fn = !/\W/.test(str) ?
+      cache[str] = cache[str] ||
+        tmpl(document.getElementById(str).innerHTML) :
+      
+      // Generate a reusable function that will serve as a template
+      // generator (and which will be cached).
+      new Function("obj",
+        "var p=[],print=function(){p.push.apply(p,arguments);};" +
+        
+        // Introduce the data as local variables using with(){}
+        "with(obj){p.push('" +
+        
+        // Convert the template into pure JavaScript
+        str
+          .replace(/[\r\t\n]/g, " ")
+          .split("<%").join("\t")
+          .replace(/((^|%>)[^\t]*)'/g, "$1\r")
+          .replace(/\t=(.*?)%>/g, "',$1,'")
+          .split("\t").join("');")
+          .split("%>").join("p.push('")
+          .split("\r").join("\\'")
+      + "');}return p.join('');");
+    
+    // Provide some basic currying to the user
+    return data ? fn( data ) : fn;
+  };
+})();
+
+
+/*	SWFObject v2.2 <http://code.google.com/p/swfobject/> 
+	is released under the MIT License <http://www.opensource.org/licenses/mit-license.php> 
+*/
+var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="ShockwaveFlash.ShockwaveFlash",q="application/x-shockwave-flash",R="SWFObjectExprInst",x="onreadystatechange",O=window,j=document,t=navigator,T=false,U=[h],o=[],N=[],I=[],l,Q,E,B,J=false,a=false,n,G,m=true,M=function(){var aa=typeof j.getElementById!=D&&typeof j.getElementsByTagName!=D&&typeof j.createElement!=D,ah=t.userAgent.toLowerCase(),Y=t.platform.toLowerCase(),ae=Y?/win/.test(Y):/win/.test(ah),ac=Y?/mac/.test(Y):/mac/.test(ah),af=/webkit/.test(ah)?parseFloat(ah.replace(/^.*webkit\/(\d+(\.\d+)?).*$/,"$1")):false,X=!+"\v1",ag=[0,0,0],ab=null;if(typeof t.plugins!=D&&typeof t.plugins[S]==r){ab=t.plugins[S].description;if(ab&&!(typeof t.mimeTypes!=D&&t.mimeTypes[q]&&!t.mimeTypes[q].enabledPlugin)){T=true;X=false;ab=ab.replace(/^.*\s+(\S+\s+\S+$)/,"$1");ag[0]=parseInt(ab.replace(/^(.*)\..*$/,"$1"),10);ag[1]=parseInt(ab.replace(/^.*\.(.*)\s.*$/,"$1"),10);ag[2]=/[a-zA-Z]/.test(ab)?parseInt(ab.replace(/^.*[a-zA-Z]+(.*)$/,"$1"),10):0}}else{if(typeof O.ActiveXObject!=D){try{var ad=new ActiveXObject(W);if(ad){ab=ad.GetVariable("$version");if(ab){X=true;ab=ab.split(" ")[1].split(",");ag=[parseInt(ab[0],10),parseInt(ab[1],10),parseInt(ab[2],10)]}}}catch(Z){}}}return{w3:aa,pv:ag,wk:af,ie:X,win:ae,mac:ac}}(),k=function(){if(!M.w3){return}if((typeof j.readyState!=D&&j.readyState=="complete")||(typeof j.readyState==D&&(j.getElementsByTagName("body")[0]||j.body))){f()}if(!J){if(typeof j.addEventListener!=D){j.addEventListener("DOMContentLoaded",f,false)}if(M.ie&&M.win){j.attachEvent(x,function(){if(j.readyState=="complete"){j.detachEvent(x,arguments.callee);f()}});if(O==top){(function(){if(J){return}try{j.documentElement.doScroll("left")}catch(X){setTimeout(arguments.callee,0);return}f()})()}}if(M.wk){(function(){if(J){return}if(!/loaded|complete/.test(j.readyState)){setTimeout(arguments.callee,0);return}f()})()}s(f)}}();function f(){if(J){return}try{var Z=j.getElementsByTagName("body")[0].appendChild(C("span"));Z.parentNode.removeChild(Z)}catch(aa){return}J=true;var X=U.length;for(var Y=0;Y<X;Y++){U[Y]()}}function K(X){if(J){X()}else{U[U.length]=X}}function s(Y){if(typeof O.addEventListener!=D){O.addEventListener("load",Y,false)}else{if(typeof j.addEventListener!=D){j.addEventListener("load",Y,false)}else{if(typeof O.attachEvent!=D){i(O,"onload",Y)}else{if(typeof O.onload=="function"){var X=O.onload;O.onload=function(){X();Y()}}else{O.onload=Y}}}}}function h(){if(T){V()}else{H()}}function V(){var X=j.getElementsByTagName("body")[0];var aa=C(r);aa.setAttribute("type",q);var Z=X.appendChild(aa);if(Z){var Y=0;(function(){if(typeof Z.GetVariable!=D){var ab=Z.GetVariable("$version");if(ab){ab=ab.split(" ")[1].split(",");M.pv=[parseInt(ab[0],10),parseInt(ab[1],10),parseInt(ab[2],10)]}}else{if(Y<10){Y++;setTimeout(arguments.callee,10);return}}X.removeChild(aa);Z=null;H()})()}else{H()}}function H(){var ag=o.length;if(ag>0){for(var af=0;af<ag;af++){var Y=o[af].id;var ab=o[af].callbackFn;var aa={success:false,id:Y};if(M.pv[0]>0){var ae=c(Y);if(ae){if(F(o[af].swfVersion)&&!(M.wk&&M.wk<312)){w(Y,true);if(ab){aa.success=true;aa.ref=z(Y);ab(aa)}}else{if(o[af].expressInstall&&A()){var ai={};ai.data=o[af].expressInstall;ai.width=ae.getAttribute("width")||"0";ai.height=ae.getAttribute("height")||"0";if(ae.getAttribute("class")){ai.styleclass=ae.getAttribute("class")}if(ae.getAttribute("align")){ai.align=ae.getAttribute("align")}var ah={};var X=ae.getElementsByTagName("param");var ac=X.length;for(var ad=0;ad<ac;ad++){if(X[ad].getAttribute("name").toLowerCase()!="movie"){ah[X[ad].getAttribute("name")]=X[ad].getAttribute("value")}}P(ai,ah,Y,ab)}else{p(ae);if(ab){ab(aa)}}}}}else{w(Y,true);if(ab){var Z=z(Y);if(Z&&typeof Z.SetVariable!=D){aa.success=true;aa.ref=Z}ab(aa)}}}}}function z(aa){var X=null;var Y=c(aa);if(Y&&Y.nodeName=="OBJECT"){if(typeof Y.SetVariable!=D){X=Y}else{var Z=Y.getElementsByTagName(r)[0];if(Z){X=Z}}}return X}function A(){return !a&&F("6.0.65")&&(M.win||M.mac)&&!(M.wk&&M.wk<312)}function P(aa,ab,X,Z){a=true;E=Z||null;B={success:false,id:X};var ae=c(X);if(ae){if(ae.nodeName=="OBJECT"){l=g(ae);Q=null}else{l=ae;Q=X}aa.id=R;if(typeof aa.width==D||(!/%$/.test(aa.width)&&parseInt(aa.width,10)<310)){aa.width="310"}if(typeof aa.height==D||(!/%$/.test(aa.height)&&parseInt(aa.height,10)<137)){aa.height="137"}j.title=j.title.slice(0,47)+" - Flash Player Installation";var ad=M.ie&&M.win?"ActiveX":"PlugIn",ac="MMredirectURL="+O.location.toString().replace(/&/g,"%26")+"&MMplayerType="+ad+"&MMdoctitle="+j.title;if(typeof ab.flashvars!=D){ab.flashvars+="&"+ac}else{ab.flashvars=ac}if(M.ie&&M.win&&ae.readyState!=4){var Y=C("div");X+="SWFObjectNew";Y.setAttribute("id",X);ae.parentNode.insertBefore(Y,ae);ae.style.display="none";(function(){if(ae.readyState==4){ae.parentNode.removeChild(ae)}else{setTimeout(arguments.callee,10)}})()}u(aa,ab,X)}}function p(Y){if(M.ie&&M.win&&Y.readyState!=4){var X=C("div");Y.parentNode.insertBefore(X,Y);X.parentNode.replaceChild(g(Y),X);Y.style.display="none";(function(){if(Y.readyState==4){Y.parentNode.removeChild(Y)}else{setTimeout(arguments.callee,10)}})()}else{Y.parentNode.replaceChild(g(Y),Y)}}function g(ab){var aa=C("div");if(M.win&&M.ie){aa.innerHTML=ab.innerHTML}else{var Y=ab.getElementsByTagName(r)[0];if(Y){var ad=Y.childNodes;if(ad){var X=ad.length;for(var Z=0;Z<X;Z++){if(!(ad[Z].nodeType==1&&ad[Z].nodeName=="PARAM")&&!(ad[Z].nodeType==8)){aa.appendChild(ad[Z].cloneNode(true))}}}}}return aa}function u(ai,ag,Y){var X,aa=c(Y);if(M.wk&&M.wk<312){return X}if(aa){if(typeof ai.id==D){ai.id=Y}if(M.ie&&M.win){var ah="";for(var ae in ai){if(ai[ae]!=Object.prototype[ae]){if(ae.toLowerCase()=="data"){ag.movie=ai[ae]}else{if(ae.toLowerCase()=="styleclass"){ah+=' class="'+ai[ae]+'"'}else{if(ae.toLowerCase()!="classid"){ah+=" "+ae+'="'+ai[ae]+'"'}}}}}var af="";for(var ad in ag){if(ag[ad]!=Object.prototype[ad]){af+='<param name="'+ad+'" value="'+ag[ad]+'" />'}}aa.outerHTML='<object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000"'+ah+">"+af+"</object>";N[N.length]=ai.id;X=c(ai.id)}else{var Z=C(r);Z.setAttribute("type",q);for(var ac in ai){if(ai[ac]!=Object.prototype[ac]){if(ac.toLowerCase()=="styleclass"){Z.setAttribute("class",ai[ac])}else{if(ac.toLowerCase()!="classid"){Z.setAttribute(ac,ai[ac])}}}}for(var ab in ag){if(ag[ab]!=Object.prototype[ab]&&ab.toLowerCase()!="movie"){e(Z,ab,ag[ab])}}aa.parentNode.replaceChild(Z,aa);X=Z}}return X}function e(Z,X,Y){var aa=C("param");aa.setAttribute("name",X);aa.setAttribute("value",Y);Z.appendChild(aa)}function y(Y){var X=c(Y);if(X&&X.nodeName=="OBJECT"){if(M.ie&&M.win){X.style.display="none";(function(){if(X.readyState==4){b(Y)}else{setTimeout(arguments.callee,10)}})()}else{X.parentNode.removeChild(X)}}}function b(Z){var Y=c(Z);if(Y){for(var X in Y){if(typeof Y[X]=="function"){Y[X]=null}}Y.parentNode.removeChild(Y)}}function c(Z){var X=null;try{X=j.getElementById(Z)}catch(Y){}return X}function C(X){return j.createElement(X)}function i(Z,X,Y){Z.attachEvent(X,Y);I[I.length]=[Z,X,Y]}function F(Z){var Y=M.pv,X=Z.split(".");X[0]=parseInt(X[0],10);X[1]=parseInt(X[1],10)||0;X[2]=parseInt(X[2],10)||0;return(Y[0]>X[0]||(Y[0]==X[0]&&Y[1]>X[1])||(Y[0]==X[0]&&Y[1]==X[1]&&Y[2]>=X[2]))?true:false}function v(ac,Y,ad,ab){if(M.ie&&M.mac){return}var aa=j.getElementsByTagName("head")[0];if(!aa){return}var X=(ad&&typeof ad=="string")?ad:"screen";if(ab){n=null;G=null}if(!n||G!=X){var Z=C("style");Z.setAttribute("type","text/css");Z.setAttribute("media",X);n=aa.appendChild(Z);if(M.ie&&M.win&&typeof j.styleSheets!=D&&j.styleSheets.length>0){n=j.styleSheets[j.styleSheets.length-1]}G=X}if(M.ie&&M.win){if(n&&typeof n.addRule==r){n.addRule(ac,Y)}}else{if(n&&typeof j.createTextNode!=D){n.appendChild(j.createTextNode(ac+" {"+Y+"}"))}}}function w(Z,X){if(!m){return}var Y=X?"visible":"hidden";if(J&&c(Z)){c(Z).style.visibility=Y}else{v("#"+Z,"visibility:"+Y)}}function L(Y){var Z=/[\\\"<>\.;]/;var X=Z.exec(Y)!=null;return X&&typeof encodeURIComponent!=D?encodeURIComponent(Y):Y}var d=function(){if(M.ie&&M.win){window.attachEvent("onunload",function(){var ac=I.length;for(var ab=0;ab<ac;ab++){I[ab][0].detachEvent(I[ab][1],I[ab][2])}var Z=N.length;for(var aa=0;aa<Z;aa++){y(N[aa])}for(var Y in M){M[Y]=null}M=null;for(var X in swfobject){swfobject[X]=null}swfobject=null})}}();return{registerObject:function(ab,X,aa,Z){if(M.w3&&ab&&X){var Y={};Y.id=ab;Y.swfVersion=X;Y.expressInstall=aa;Y.callbackFn=Z;o[o.length]=Y;w(ab,false)}else{if(Z){Z({success:false,id:ab})}}},getObjectById:function(X){if(M.w3){return z(X)}},embedSWF:function(ab,ah,ae,ag,Y,aa,Z,ad,af,ac){var X={success:false,id:ah};if(M.w3&&!(M.wk&&M.wk<312)&&ab&&ah&&ae&&ag&&Y){w(ah,false);K(function(){ae+="";ag+="";var aj={};if(af&&typeof af===r){for(var al in af){aj[al]=af[al]}}aj.data=ab;aj.width=ae;aj.height=ag;var am={};if(ad&&typeof ad===r){for(var ak in ad){am[ak]=ad[ak]}}if(Z&&typeof Z===r){for(var ai in Z){if(typeof am.flashvars!=D){am.flashvars+="&"+ai+"="+Z[ai]}else{am.flashvars=ai+"="+Z[ai]}}}if(F(Y)){var an=u(aj,am,ah);if(aj.id==ah){w(ah,true)}X.success=true;X.ref=an}else{if(aa&&A()){aj.data=aa;P(aj,am,ah,ac);return}else{w(ah,true)}}if(ac){ac(X)}})}else{if(ac){ac(X)}}},switchOffAutoHideShow:function(){m=false},ua:M,getFlashPlayerVersion:function(){return{major:M.pv[0],minor:M.pv[1],release:M.pv[2]}},hasFlashPlayerVersion:F,createSWF:function(Z,Y,X){if(M.w3){return u(Z,Y,X)}else{return undefined}},showExpressInstall:function(Z,aa,X,Y){if(M.w3&&A()){P(Z,aa,X,Y)}},removeSWF:function(X){if(M.w3){y(X)}},createCSS:function(aa,Z,Y,X){if(M.w3){v(aa,Z,Y,X)}},addDomLoadEvent:K,addLoadEvent:s,getQueryParamValue:function(aa){var Z=j.location.search||j.location.hash;if(Z){if(/\?/.test(Z)){Z=Z.split("?")[1]}if(aa==null){return L(Z)}var Y=Z.split("&");for(var X=0;X<Y.length;X++){if(Y[X].substring(0,Y[X].indexOf("="))==aa){return L(Y[X].substring((Y[X].indexOf("=")+1)))}}}return""},expressInstallCallback:function(){if(a){var X=c(R);if(X&&l){X.parentNode.replaceChild(l,X);if(Q){w(Q,true);if(M.ie&&M.win){l.style.display="block"}}if(E){E(B)}}a=false}}}}();
+
+gui = {};
+gui.status = function(text){
+  alert(text);
+};
+
+admin = {};
+admin.updateUser = function(type, id, obj){
+  jQuery.getJSON("/admin/ajaxUpdateUser"
+    ,{
+      type: type,
+      id: id,
+      user: jQuery(obj).val()
+    },
+    function(data) {
+    }
+  );
+};
+admin.switchMode = function(mode){
+  jQuery.getJSON("/admin/ajaxSwitchMode"
+    ,{
+      mode: mode
+    },
+    function(data) {
+      window.location.reload();
+    }
+  );
+};
+jQuery(function(){
+  console.log('init');
+  var content_type_select = jQuery('#content-type');
+
+  content_type_select.on('change', function(e){
+    el = jQuery(e.target);
+    createCookie('admin-content-type', el.val());
+    location.reload();
+  })
+
+  content_type_select.attr('disabled', false);
+})
+
+
+comment = {};
+comment.post = function(key, username, content, callback) {
+  var hash = String(Math.random()).substring(2, 15);
+  var request = {
+    hash : hash
+    ,key : key
+    ,content : content
+    ,username : username
+  };
+
+  jQuery.getJSON(
+      "https://lostbetsgames.com/comment/ajaxPost"
+      , {req:jQuery.toJSON(request)},
+      callback);
+};
+
+image = {};
+image.crop = function(imageId) {
+  var request = {
+    imageId : imageId
+  };
+  
+  window.location = ("https://lostbetsgames.com/admin/crop/type/image"+'/imageId/'+imageId);
+};
+image.remove = function(id) {
+  if (confirm("Are you sure you want to delete this Image?\n\nThis action can not be undone.\n\nClick OK to delete forever.\n\n")){
+    var request = {
+      imageId : id
+    };
+  
+    jQuery.getJSON("https://lostbetsgames.com/site/ajaxImageDelete",
+      {req:jQuery.toJSON(request)},
+      function(data) {
+        jQuery('#image_'+id).html('');
+      });
+  }
+};
+image.update = function(id){
+  jQuery('#image_'+id+' .updating').text('Saving...');
+  jQuery.getJSON("/upload/ajaxImageUpdateById"
+    ,{
+      title: jQuery('#image_'+id+' .title').val(),
+      imageId: id
+    },
+    function(data) {
+      try{
+        jQuery('#image_'+id+' .updating').text('Saved.');
+      }catch(e){d(e)}
+    }
+  );
+};
+image.setDefault = function(id) {
+  var request = {
+    imageId : id
+  };
+
+  jQuery.getJSON("https://lostbetsgames.com/site/ajaxImageDefault",
+    {req:jQuery.toJSON(request)},
+    function(data) {
+      jQuery('.image').removeClass('default');
+      jQuery('#image_'+id).addClass('default');
+    });
+};
+
+rate = {};
+rate.post = function(key, value) {
+  jQuery('#watch-like').hide();
+  jQuery('#watch-unlike').hide();
+  jQuery('#watch-response').show();
+
+  var request = {
+    key : key,
+    value : value
+  };
+
+  jQuery.getJSON("https://lostbetsgames.com/site/ajaxRate"
+    ,{req:jQuery.toJSON(request)},
+    function(json){
+      d(json);
+      jQuery('#watch-response').text('Saved');
+    }
+  );
+};
+
+jQuery(function(){
+  var key = jQuery('#watch-response').attr('key');
+  jQuery('#watch-like').click(function(){
+    rate.post(key, 1);
+  });
+  jQuery('#watch-unlike').click(function(){
+    rate.post(key, -1);
+  });
+  jQuery('#watch-favorite').click(function(){
+    favorite.post(key);
+  });
+})
+
+favorite = {};
+favorite.post = function(key, remove) {
+  jQuery('#watch-favorite').hide();
+  jQuery('#watch-response-favorite').show();
+
+  var request = {
+    key : key,
+    remove: remove?true:false
+  };
+
+  jQuery.getJSON("https://lostbetsgames.com/site/ajaxFavorite"
+    ,{req:jQuery.toJSON(request)},
+    function(json){
+      jQuery('#watch-response-favorite').text('Saved');
+    }
+  );
+};
+
+profile = {};
+profile.saveTags = function() {
+  var request = {
+    hash : String(Math.random()).substring(2, 15),
+    setting_name : 'tag_include',
+    setting_value : jQuery('#tag_include').val()
+  };
+
+  jQuery.getJSON("https://lostbetsgames.com/user/ajaxSetSetting",
+    {req:jQuery.toJSON(request)},
+    function(data) {
+      d('include saved');
+    });
+
+  var request = {
+    hash : String(Math.random()).substring(2, 15),
+    setting_name : 'tag_exclude',
+    setting_value : jQuery('#tag_exclude').val()
+  };
+
+  jQuery.getJSON("https://lostbetsgames.com/user/ajaxSetSetting",
+    {req:jQuery.toJSON(request)},
+    function(data) {
+      d('exclude saved');
+    });
+  
+  jQuery('#tag_saved').text('Saved.');
+};
+
+video = {};
+video.remove = function(id) {
+  if (confirm("Are you sure you want to delete this Video?\n\nThis action can not be undone.\n\nClick OK to delete forever.\n\n")){
+    var request = {
+      hash : String(Math.random()).substring(2, 15),
+      videoId : id
+    };
+  
+    jQuery.getJSON("https://lostbetsgames.com/site/ajaxVideoDelete",
+      {req:jQuery.toJSON(request)},
+      function(data) {
+        jQuery('#video_'+id).html('');
+      });
+  }
+};
+
+video.promote = function(id) {
+  var request = {
+    hash : String(Math.random()).substring(2, 15),
+    videoId : id
+  };
+
+  jQuery.getJSON("https://lostbetsgames.com/site/ajaxVideoPromote",
+    {req:jQuery.toJSON(request)},
+    function(data) {
+      jQuery('#video_'+id).text('Promoted.');
+    });
+};
+
+
+video.trim = function(id) {
+  var request = {
+    videoId : id,
+    start : parseInt(jQuery('#video_'+id+' .trim_start').val()*1),
+    end : parseInt(jQuery('#video_'+id+' .trim_end').val()*1)
+  };
+
+  jQuery.getJSON("https://lostbetsgames.com/site/ajaxVideoTrim",
+    {req:jQuery.toJSON(request)},
+    function(data) {
+      jQuery('#video_'+id).text('Queued for trimming and reencoding.');
+    });
+};
+
+video.public = function(id) {
+  var request = {
+    hash : String(Math.random()).substring(2, 15),
+    videoId : id
+  };
+
+  jQuery.getJSON("https://lostbetsgames.com/site/ajaxVideoPublic",
+    {req:jQuery.toJSON(request)},
+    function(data) {
+      jQuery('#video_edit_'+id).text('Is public now.');
+      jQuery('.make_public.video_'+id).addClass('clicked');
+    });
+};
+video.private = function(id) {
+  var request = {
+    hash : String(Math.random()).substring(2, 15),
+    videoId : id,
+    public: false
+  };
+
+  jQuery.getJSON("https://lostbetsgames.com/site/ajaxVideoPublic",
+    {req:jQuery.toJSON(request)},
+    function(data) {
+      jQuery('#video_edit_'+id).text('Is private now.');
+      jQuery('.make_private.video_'+id).addClass('clicked');
+    });
+};
+video.update = function(videoId){
+  jQuery('#video_'+videoId+'_save').text('Saving...');
+  jQuery.getJSON("/upload/ajaxVideoUpdateById"
+    ,{
+      videoId: videoId,
+      title: jQuery('#video_'+videoId+' .title').val(),
+      description: jQuery('#video_'+videoId+' .description').val(),
+      scene: jQuery('#video_'+videoId+' .scene').val(),
+      tags: jQuery('#video_'+videoId+' .tags').val(),
+      artists: jQuery('#video_'+videoId+' .artists').val(),
+      trailer: jQuery('#video_'+videoId+' .trailer').val(),
+      liveTime: jQuery('#video_'+videoId+' .liveTime').val()
+    },
+    function(data) {
+      try{
+        jQuery('#video_'+videoId+'_save').text('Saved');
+      }catch(e){d(e)}
+    }
+  );
+};
+
+video.reconvert = function(){
+  request = {
+    videoId:jQuery('#videoId').val()
+  };
+  jQuery.get('/site/videoReconvert',{req:jQuery.toJSON(request)},function(json){
+    alert('queued for reconvertion');
+  },'json');
+};
+
+video.cleanCdn = function(){
+  request = {
+    videoId:jQuery('#videoId').val()
+  };
+  jQuery.get('/site/cleanCdn',{req:jQuery.toJSON(request)},function(json){
+    alert('CDN clean request sent');
+    alert(JSON.stringify(json));
+  },'json');
+};
+
+video.regenerateThumbs = function(){
+alert('Thumbs Queued For Regeneration');
+  request = {
+    videoId:jQuery('#videoId').val()
+  };
+
+
+	$.ajax({
+        url: "/site/regenerateThumbs",
+        type: "get",
+        data: {req:jQuery.toJSON(request)},
+        complete: function($data){
+			console.log($data);
+		if(confirm('Thumbs Regenerated. Reload page?')) {
+			location.reload();
+			}
+ 
+ 		}
+    });
+/* 
+      jQuery.get('/site/regenerateThumbs',{req:jQuery.toJSON(request)},function(json){
+		if(prompt('Thumbs Regenerated. Reload page?')) {
+			location.reload();
+		}
+  },'json');
+ */
+};
+
+
+upload = {};
+upload.cancel = function(){
+  jQuery('#uploadify_progress').html('');
+  jQuery('#video_form').html('');
+  jQuery('#uploadify_div').css({
+    left: 'auto'
+  });
+};
+upload.start = function(){
+  jQuery('#uploadify_progress').html('<span id="uploading">Your file is uploading...</span>');
+  jQuery.getJSON("/upload/ajaxGetUploadHash",
+    {dareId:dareId},
+    function(data) {
+      try{
+        jQuery('#uploading').append(' Provide a file description, please.');
+        upload.showForm(data.hash);
+        var queryString = '&hash='+data.hash;  
+        jQuery('#uploadify').uploadifySettings('scriptData',{hash:data.hash});  
+        jQuery('#uploadify').uploadifyUpload();            
+      }catch(e){d(e)}
+    });
+  
+  jQuery('#uploadify_div').css({
+    left: '-1000px'
+  });
+};
+upload.error = function(error){
+  jQuery('#uploadify_progress').html('<span id="error">Unable to upload.'+error+'</span>');
+  jQuery('#video_form').html('');
+
+  //jQuery('#form').hide();
+};
+upload.showForm = function(hash){
+  jQuery('#video_form').html(tmpl("form_tpl", {hash:hash}));
+  jQuery('#video_form .tags').autocomplete([
+    {
+      // ������ ��� (� ������ ������)
+      regex: /^([^,]+)$/,
+      items: habra_tags
+    },
+    {
+      // �� ������ ��� (�� ��� �� ��������� ������� ����� ��������)
+      regex: /^.*,\s+([^,]+)$/,
+      items: habra_tags
+    }
+  ]);
+
+  
+  //jQuery('#form').show();
+  //jQuery('#hash').val(hash);
+};
+upload.update = function(hash){
+  if(hash.length == 32){
+    jQuery('#form_'+hash+' .updating').text('Saving...');
+    jQuery.getJSON("/upload/ajaxUpdateByHash"
+      ,{
+        hash: hash,
+        title: jQuery('#form_'+hash+' .title').val(),
+        is_hd: jQuery('#form_'+hash+' .is_hd').is(':checked'),
+        is_bonus: jQuery('#form_'+hash+' .is_bonus').is(':checked'),
+        is_members_only: jQuery('#form_'+hash+' .is_members_only').is(':checked'),
+        category_id: jQuery('#form_'+hash+' .category_id').val(),
+        description: jQuery('#form_'+hash+' .description').val(),
+        scene: jQuery('#form_'+hash+' .scene').val(),
+        tags: jQuery('#form_'+hash+' .tags').val(),
+        artists: jQuery('#form_'+hash+' .artists').val(),
+        embed: jQuery('#embed_code').val(),
+        liveTime: jQuery('#form_'+hash+' .liveTime').val()
+        
+      },
+      function(data) {
+        try{
+          d(data);
+          jQuery('#form_'+hash+' .updating').text('Saved.');
+        }catch(e){d(e)}
+      }
+    );
+  }
+};
+
+album = {};
+album.update = function(albumId){
+  jQuery('#album_'+albumId+'_save').text('Saving...');
+  jQuery.getJSON("/upload/ajaxAlbumUpdateById"
+    ,{
+      albumId: albumId,
+      title: jQuery('#album_'+albumId+' .title').val(),
+      description: jQuery('#album_'+albumId+' .description').val(),
+      tags: jQuery('#album_'+albumId+' .tags').val()
+    },
+    function(data) {
+      try{
+        jQuery('#album_'+albumId+'_save').text('Saved');
+      }catch(e){d(e)}
+    }
+  );
+};
+album.remove = function(id) {
+  if (confirm("Are you sure you want to delete this Album?\n\nThis action can not be undone.\n\nClick OK to delete forever.\n\n")){
+    jQuery.getJSON("https://lostbetsgames.com/site/ajaxAlbumDelete",
+      {albumId : id},
+      function(data) {
+        jQuery('#album_'+id).html('');
+      });
+  }
+};
+album.download = function(albumId) {
+  var html = jQuery('#dl_zip_link').html();
+  jQuery('#dl_zip_link').html('<span style="color:red;font-weight:bold;">Please Wait. Archive is being created...</span>');
+  jQuery.getJSON("https://lostbetsgames.com/site/ajaxAlbumZip"
+    ,{albumId:albumId} ,
+    function(json) {
+      jQuery("#dl_zip_link").html(html);
+      location.href = json.url; 
+    });
+};
+
+
+embed = {};
+embed.select = function() {
+  jQuery.getJSON("/upload/ajaxGetUploadHash/type/embed"
+    ,{},
+    function(data) {
+      try{
+        jQuery('#embed_button').hide();
+        jQuery('#embed_code').show();
+        jQuery('#embed_form').html(tmpl("form_tpl", {hash:data.hash}));
+        jQuery('#embed_form_tags').autocomplete([
+          {
+            // ������ ��� (� ������ ������)
+            regex: /^([^,]+)$/,
+            items: habra_tags
+          },
+          {
+            // �� ������ ��� (�� ��� �� ��������� ������� ����� ��������)
+            regex: /^.*,\s+([^,]+)$/,
+            items: habra_tags
+          }
+        ]);
+      }catch(e){d(e)}
+    });
+};
+
+var thumb = {};
+thumb.remove = function(){
+  var frames = [];
+  jQuery('#sortable li.ui-selected').each(function(){
+    frames.push(jQuery('#sortable #'+this.id+' img').attr('id'));
+    jQuery('#'+this.id).remove();
+  });
+  
+  if(frames.length) {
+    request = {
+      frames:frames,
+      videoId:jQuery('#videoId').val()
+    };
+    jQuery.get('/upload/animatedFramesDelete',{req:jQuery.toJSON(request)});
+  }
+};
+
+thumb.create = function(){
+  jQuery('.thumb_save_updating').text('Saving...');
+  jQuery('#animated_thumb').attr('src', '/i/loading_thumb.gif');
+  
+  var frames = [];
+  jQuery('#sortable img').each(function(){
+    frames.push(this.id);
+  });
+
+  jQuery('#sortable').text('Loading...');
+  if(frames.length) {
+    request = {
+      frames:frames,
+      videoId:jQuery('#videoId').val()
+    };
+    jQuery.get('/upload/animatedRecreate',{req:jQuery.toJSON(request)},function(json){
+      jQuery('#animated_thumb').attr('src', json.src);
+      thumb.get();
+		  jQuery('.thumb_save_updating').text('Saved');
+    },'json');
+  }
+};
+
+thumb.add = function(id,filename,src){
+  var element = '<li class="ui-state-default" id="frame'+id+'"><span class="ui-icon ui-icon-arrowthick-2-n-s"></span><img id="'+filename+'" width="300" src="'+src+'" /></li>';
+  jQuery('#sortable').append(element);
+};
+
+thumb.get = function(){
+  jQuery('#sortable').text('');
+  jQuery.get('/upload/animatedGet',{req:jQuery.toJSON({'videoId':jQuery('#videoId').val()})},function(json){
+    jQuery(json.frames).each(function(){
+      thumb.add(this.id,this.filename,this.src);
+    });
+  },'json');
+};
+
+thumb.setDefault = function(){
+  var frames = [];
+  jQuery('#sortable li.ui-selected').each(function(){
+    frames.push(jQuery('#sortable #'+this.id+' img').attr('id'));
+  });
+  
+  if(frames.length>0) {
+    request = {
+      frame:frames[0],
+      videoId:jQuery('#videoId').val()
+    };
+    jQuery.get('/upload/animatedFrameSetDefault',{req:jQuery.toJSON(request)},function(json){
+    	console.log(jQuery('#thumbnail').attr('src'));
+      jQuery('#thumbnail').attr('src', json.src+'?'+String(Math.random()).substring(2, 15));
+    	console.log(jQuery('#thumbnail').attr('src'));
+      cropbox.destroy();
+      jQuery('#cropbox').one('load', cropbox_init);
+      jQuery('#cropbox').attr('src', json.src_orig+'?'+String(Math.random()).substring(2, 15));
+    },'json');
+  }
+};
+
+
+thumb.crop = function(){
+  request = {
+    x: jQuery('#x').val(),
+    y: jQuery('#y').val(),
+    w: jQuery('#w').val(),
+    h: jQuery('#h').val(),
+    xscale: jQuery('#xscale').val(),
+    yscale: jQuery('#yscale').val(),
+    videoId:jQuery('#videoId').val()
+  };
+  jQuery.get('/upload/cropThumbnail',{req:jQuery.toJSON(request)},function(json){
+    jQuery('#thumbnail').attr('src', json.src);
+  },'json');
+};
+
+console.log('miniclip.js loaded');
+$("<style type='text/css'> .miniclip { background:url('/static/i/loading-buffering7.gif') center center no-repeat; width:100%; position: absolute; top: 0; left:0; display: none;} </style>").appendTo("head");
+
+$('[miniclip]').each(function(i, e) {
+    var target = $(e);
+    //$new_element = $('<div class="miniclip">');
+    // $new_element = $('<video />', {
+    //     class: 'miniclip',
+    //     src: target.attr('miniclip'),
+    //     type: 'video/mp4',
+    //     controls: false,
+    //     muted: 'muted',
+    // });
+    $new_element = $('<video class="miniclip" type="video/mp4" muted loop playsInline preload="none" disableRemotePlayback ></video>');
+    $new_element.attr('src', target.attr('miniclip'));
+    target.css('position', 'relative');
+    target.append($new_element);
+});
+
+$('[miniclip]').hover(
+    function(e) {
+        var target = $(e.target).closest('[miniclip]');
+        console.log(target);
+        var video = target.find('video');
+        video.css('display', 'block');
+        // if(video.data('is_loaded')) {
+        //     video.css('display', 'block');
+        // } else {
+        //     video.on('loadeddata', function(){
+        //         video.data('is_loaded', true);
+        //         video.css('display', 'block');
+        //     });
+        // }
+        video.trigger('play');
+    },
+    function(e) {
+        var target = $(e.target).closest('[miniclip]');
+        console.log(target);
+        var video = target.find('video');
+        video.css('display', 'none');
+        video.trigger('stop');
+    },
+);
+
+
+
+// var style = $('<style id="myStyleTag"></style>');
+// style.html('* { background-color: blue; }');
+// $(document).append(style);
+
+console.log('miniclip.js is executed');

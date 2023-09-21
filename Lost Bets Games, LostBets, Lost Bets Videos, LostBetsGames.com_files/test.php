@@ -1,0 +1,1 @@
+window.sbauth = false;
