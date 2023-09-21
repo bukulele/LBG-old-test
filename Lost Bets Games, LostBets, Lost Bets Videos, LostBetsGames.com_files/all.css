@@ -1266,3 +1266,7 @@ https://github.com/videojs/video.js/blob/master/src/css/video-js.less */
 	margin: 0 !important;
 	white-space: nowrap;
 }
+
+.content-animated * {
+	pointer-events: none;
+}

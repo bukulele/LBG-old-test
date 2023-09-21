@@ -1,6 +1,7 @@
 let buttonTextAnimated = document.querySelector('.button-text-animation__container');
 let textsContainer = buttonTextAnimated.querySelector('div');
 let buttonTexts = buttonTextAnimated.querySelectorAll('p');
+let navbarContainer = document.querySelector('.solidblockmenu');
 let maxTextWidth = 0;
 
 for (let text of buttonTexts) {
@@ -8,17 +9,18 @@ for (let text of buttonTexts) {
     maxTextWidth = text.offsetWidth;
   }
 }
-console.log(textsContainer);
 buttonTextAnimated.style.width = `${maxTextWidth}px`;
 
-function moveButtonTextsUp () {
-  console.log('PIU');
-  textsContainer.style.top = `-17px`;
+function moveButtonTextsUp (event) {
+  if (event.target.className.includes('content-animated')) {
+    textsContainer.style.top = `-17px`;
+  }
 }
 
-function moveButtonTextsDown () {
-  textsContainer.style.top = `0px`;
-}
+function moveButtonTextsDown (event) {
+  if (event.target.className.includes('content-animated')) {
+    textsContainer.style.top = `0px`;
+  }}
 
-buttonTextAnimated.addEventListener('mouseenter', moveButtonTextsUp);
-buttonTextAnimated.addEventListener('mouseleave', moveButtonTextsDown);
+navbarContainer.addEventListener('mouseover', moveButtonTextsUp);
+navbarContainer.addEventListener('mouseout', moveButtonTextsDown);
