@@ -2,10 +2,9 @@ const buttonTextAnimated = document.querySelector('.button-text-animation__conta
 const textsContainer = buttonTextAnimated.querySelector('.button-texts__container');
 let maxTextWidth = 0;
 let textHeight;
-let currentButtonText = 0;
 let currentTextContainerTopPosition = 0;
-
 const buttonTexts = ['MyTinyDick', 'SPH', 'Femdom', 'MyTinyDick'];
+let currentButtonText = -1;
 
 for (let text of buttonTexts) {
   let pElem = document.createElement('p');
@@ -28,17 +27,16 @@ function moveButtonTextsUp () {
     textsContainer.classList.add('button-texts__container--animated');
   }
 
-  if (currentButtonText === buttonTexts.length - 1) {
-    currentButtonText = 0;
+  if (currentButtonText + 1 === buttonTexts.length - 1) {
+    currentButtonText += 1;
     currentTextContainerTopPosition = currentButtonText * textHeight;
-    textsContainer.classList.remove('button-texts__container--animated');
     textsContainer.style.top = `${-currentTextContainerTopPosition}px`;
     setTimeout(() => {
-      currentButtonText += 1;
+      textsContainer.classList.remove('button-texts__container--animated');
+      currentButtonText = 0;
       currentTextContainerTopPosition = currentButtonText * textHeight;
-      textsContainer.classList.add('button-texts__container--animated');
       textsContainer.style.top = `${-currentTextContainerTopPosition}px`;
-    }, 0);
+    }, 200);
   } else {
     currentButtonText += 1;
     currentTextContainerTopPosition = currentButtonText * textHeight;
