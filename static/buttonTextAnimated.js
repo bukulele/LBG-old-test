@@ -2,7 +2,7 @@ const buttonTextAnimated = document.querySelector('.button-text-animation__conta
 const textsContainer = buttonTextAnimated.querySelector('.button-texts__container');
 let maxTextWidth = 0;
 let textHeight;
-const buttonTexts = ['MyTinyDick', 'SPH scenes', 'Femdom', 'MyTinyDick'];
+const buttonTexts = ['MyTinyDick', 'SPH scenes', 'Femdom', 'Humiliation', 'Tiny dicks', 'Hot girls', 'MyTinyDick'];
 let currentButtonText = 0;
 
 for (let text of buttonTexts) {
@@ -19,7 +19,7 @@ textHeight = textsContainer.firstElementChild.offsetHeight;
 buttonTextAnimated.style.width = `${maxTextWidth}px`;
 buttonTextAnimated.style.height = `${textHeight}px`;
 
-setTimeout(moveButtonTextsUp, 3000);
+moveButtonTimeout();
 
 function moveButtonTextsUp () {
   if (!buttonTextAnimated.className.includes('button-text-animation__container--animated')) {
@@ -33,13 +33,17 @@ function moveButtonTextsUp () {
       buttonTextAnimated.classList.remove('button-text-animation__container--animated');
       currentButtonText = 0;
       buttonTextAnimated.scroll(0, 0);
-    }, 200);
+    }, 300);
   } else {
     currentButtonText += 1;
     buttonTextAnimated.scrollBy(0, textHeight);
   }
+  moveButtonTimeout();
+}
+
+function moveButtonTimeout() {
   setTimeout(moveButtonTextsUp, 3000);
 }
 
 
-document.querySelector('.solidblockmenu').addEventListener('mouseenter', moveButtonTextsUp);
+// document.querySelector('.solidblockmenu').addEventListener('mouseenter', moveButtonTextsUp);
