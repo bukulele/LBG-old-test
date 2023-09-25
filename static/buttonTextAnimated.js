@@ -15,18 +15,14 @@ for (let text of buttonTexts) {
     maxTextWidth = pElem.offsetWidth;
   }
 }
-// textHeight = textsContainer.firstElementChild.offsetHeight;
-//
-// buttonTextAnimated.style.width = `${maxTextWidth}px`;
-// buttonTextAnimated.style.height = `${textHeight}px`;
+textHeight = textsContainer.firstElementChild.offsetHeight;
+
+buttonTextAnimated.style.width = `${maxTextWidth}px`;
+buttonTextAnimated.style.height = `${textHeight}px`;
 
 moveButtonTextsUp();
 
 function moveButtonTextsUp () {
-  textHeight = textsContainer.firstElementChild.offsetHeight;
-
-  buttonTextAnimated.style.width = `${maxTextWidth}px`;
-  buttonTextAnimated.style.height = `${textHeight}px`;
   if (!textsContainer.className.includes('button-texts__container--animated')) {
     textsContainer.classList.add('button-texts__container--animated');
   }
@@ -46,8 +42,8 @@ function moveButtonTextsUp () {
     currentTextContainerTopPosition = currentButtonText * textHeight;
     textsContainer.style.top = `${-currentTextContainerTopPosition}px`;
   }
-  setTimeout(moveButtonTextsUp, 3000);
+  // setTimeout(moveButtonTextsUp, 3000);
 }
 
 
-// document.querySelector('.solidblockmenu').addEventListener('mouseenter', moveButtonTextsUp);
+document.querySelector('.solidblockmenu').addEventListener('mouseenter', moveButtonTextsUp);
