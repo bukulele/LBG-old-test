@@ -19,7 +19,7 @@ textHeight = textsContainer.firstElementChild.offsetHeight;
 buttonTextAnimated.style.width = `${maxTextWidth}px`;
 buttonTextAnimated.style.height = `${textHeight}px`;
 
-// moveButtonTextsUp();
+setTimeout(moveButtonTextsUp, 3000);
 
 function moveButtonTextsUp () {
   if (!buttonTextAnimated.className.includes('button-text-animation__container--animated')) {
