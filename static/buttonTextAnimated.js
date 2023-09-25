@@ -2,9 +2,8 @@ const buttonTextAnimated = document.querySelector('.button-text-animation__conta
 const textsContainer = buttonTextAnimated.querySelector('.button-texts__container');
 let maxTextWidth = 0;
 let textHeight;
-let currentTextContainerTopPosition = 0;
 const buttonTexts = ['MyTinyDick', 'SPH scenes', 'Femdom', 'MyTinyDick'];
-let currentButtonText = -1;
+let currentButtonText = 0;
 
 for (let text of buttonTexts) {
   let pElem = document.createElement('p');
@@ -20,29 +19,26 @@ textHeight = textsContainer.firstElementChild.offsetHeight;
 buttonTextAnimated.style.width = `${maxTextWidth}px`;
 buttonTextAnimated.style.height = `${textHeight}px`;
 
-moveButtonTextsUp();
+// moveButtonTextsUp();
 
 function moveButtonTextsUp () {
-  if (!textsContainer.className.includes('button-texts__container--animated')) {
-    textsContainer.classList.add('button-texts__container--animated');
+  if (!buttonTextAnimated.className.includes('button-text-animation__container--animated')) {
+    buttonTextAnimated.classList.add('button-text-animation__container--animated');
   }
 
   if (currentButtonText + 1 === buttonTexts.length - 1) {
     currentButtonText += 1;
-    currentTextContainerTopPosition = currentButtonText * textHeight;
-    textsContainer.style.top = `${-currentTextContainerTopPosition}px`;
+    buttonTextAnimated.scrollBy(0, textHeight);
     setTimeout(() => {
-      textsContainer.classList.remove('button-texts__container--animated');
+      buttonTextAnimated.classList.remove('button-text-animation__container--animated');
       currentButtonText = 0;
-      currentTextContainerTopPosition = currentButtonText * textHeight;
-      textsContainer.style.top = `${-currentTextContainerTopPosition}px`;
+      buttonTextAnimated.scroll(0, 0);
     }, 200);
   } else {
     currentButtonText += 1;
-    currentTextContainerTopPosition = currentButtonText * textHeight;
-    textsContainer.style.top = `${-currentTextContainerTopPosition}px`;
+    buttonTextAnimated.scrollBy(0, textHeight);
   }
-  // setTimeout(moveButtonTextsUp, 3000);
+  setTimeout(moveButtonTextsUp, 3000);
 }
 
 

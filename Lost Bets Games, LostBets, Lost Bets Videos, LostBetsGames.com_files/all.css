@@ -1248,7 +1248,12 @@ https://github.com/videojs/video.js/blob/master/src/css/video-js.less */
 	position: relative;
 	margin: 0 !important;
 	height: 1em;
-	overflow: hidden;
+	/*overflow: hidden;*/
+	overflow-y: scroll;
+	-ms-overflow-style: none;  /* IE and Edge */
+	scrollbar-width: none;  /* Firefox */
+	scroll-snap-type: y mandatory;
+	scroll-padding: 0;
 }
 
 .button-texts__container {
@@ -1261,8 +1266,16 @@ https://github.com/videojs/video.js/blob/master/src/css/video-js.less */
 	margin: 0 !important;
 }
 
-.button-texts__container--animated {
-	transition: all 0.2s ease-in-out;
+.button-texts__container p {
+	scroll-snap-align: start;
+}
+
+.button-text-animation__container::-webkit-scrollbar {
+	display: none;
+}
+
+.button-text-animation__container--animated {
+	scroll-behavior: smooth;
 }
 
 .button-text-animation__container p {
